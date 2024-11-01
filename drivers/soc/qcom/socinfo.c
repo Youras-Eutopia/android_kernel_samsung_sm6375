@@ -1024,7 +1024,51 @@ msm_get_images(struct device *dev,
 
 	return pos;
 }
+//xiesiyu.wt, MODIFY, 20230725, add info of lcd
+#ifdef CONFIG_QGKI_BUILD
+static ssize_t
+msm_get_lcd_tp_info(struct device *dev,
+			struct device_attribute *attr,
+			char *buf)
+{
+	char lcd_tp_info[20]= {0};
+	if(strstr(saved_command_line,"ft8203_apf")!= NULL){
+		strncpy(lcd_tp_info, "ft8203", strlen("ft8203"));
+	}else if(strstr(saved_command_line,"hx83102j_starry") != NULL){
+		strncpy(lcd_tp_info, "starry", strlen("starry"));
+	}else if(strstr(saved_command_line,"hx83102j_lide") != NULL){
+		strncpy(lcd_tp_info, "lide", strlen("lide"));
+	}else if(strstr(saved_command_line,"icnl9958r_boe") != NULL){
+		strncpy(lcd_tp_info, "icnl9958r", strlen("icnl9958r"));
+	}else if(strstr(saved_command_line,"ft8203_dsbj") != NULL){
+		strncpy(lcd_tp_info, "dsbj", strlen("dsbj"));
+	}else if(strstr(saved_command_line,"icnl9951r_hjr") != NULL){
+		strncpy(lcd_tp_info, "hjr", strlen("hjr"));
+	}else if(strstr(saved_command_line,"icnl9951r_txd") != NULL){
+		strncpy(lcd_tp_info, "txd", strlen("txd"));
+	}else if(strstr(saved_command_line,"icnl9951r_xinxian") != NULL){
+		strncpy(lcd_tp_info, "xinxian", strlen("xinxian"));
+	}else{
+		strncpy(lcd_tp_info, "ft8203", strlen("ft8203"));
+	}
 
+	return snprintf(buf, SMEM_IMAGE_VERSION_VARIANT_SIZE, "%-s\n",
+		lcd_tp_info);
+}
+#else
+static ssize_t
+msm_get_lcd_tp_info(struct device *dev,
+			struct device_attribute *attr,
+			char *buf)
+{
+	char lcd_tp_info[20]= {0};
+	strncpy(lcd_tp_info, "ft8203", strlen("ft8203"));
+
+	return snprintf(buf, SMEM_IMAGE_VERSION_VARIANT_SIZE, "%-s\n",
+		lcd_tp_info);
+}
+#endif
+//xiesiyu.wt, MODIFY, 20230725, add info of lcd
 static struct device_attribute image_version =
 	__ATTR(image_version, 0644,
 			msm_get_image_version, msm_set_image_version);
@@ -1043,8 +1087,10 @@ static struct device_attribute select_image =
 
 static struct device_attribute images =
 	__ATTR(images, 0444, msm_get_images, NULL);
-
-
+//xiesiyu.wt, MODIFY, 20230725, add info of lcd
+static struct device_attribute lcd_tp_info =
+	__ATTR(lcd_tp_info, 0644, msm_get_lcd_tp_info, NULL);
+//xiesiyu.wt, MODIFY, 20230725, add info of lcd
 static umode_t soc_info_attribute(struct kobject *kobj,
 						   struct attribute *attr,
 						   int index)
@@ -1121,6 +1167,9 @@ static void socinfo_populate_sysfs(struct qcom_socinfo *qcom_socinfo)
 	msm_custom_socinfo_attrs[i++] = &image_crm_version.attr;
 	msm_custom_socinfo_attrs[i++] = &select_image.attr;
 	msm_custom_socinfo_attrs[i++] = &images.attr;
+//xiesiyu.wt, MODIFY, 20230725, add info of lcd
+	msm_custom_socinfo_attrs[i++] = &lcd_tp_info.attr;
+//xiesiyu.wt, MODIFY, 20230725, add info of lcd
 	msm_custom_socinfo_attrs[i++] = NULL;
 	qcom_socinfo->attr.custom_attr_group = &custom_soc_attr_group;
 }
